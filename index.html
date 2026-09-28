@@ -1,0 +1,357 @@
+<title>Impostor Futbolero</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap">
+<style>
+/* Layout: una sola columna tipo pantalla de estadio de noche; cada fase del juego ocupa la pantalla. Un solo look oscuro a propósito. */
+:root {
+  --cesped: #0f2a1d;        /* fondo: pasto de noche */
+  --cesped-2: #153828;      /* superficies */
+  --tiza: #eef3ec;          /* texto y líneas de cal */
+  --tiza-suave: #a9bcae;    /* texto secundario */
+  --amarilla: #f2c230;      /* acento: tarjeta amarilla */
+  --roja: #e0413a;          /* impostor: tarjeta roja */
+  --linea: rgba(238,243,236,.18);
+  --f-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body: "Barlow", system-ui, sans-serif;
+  --f-util: "Barlow Condensed", "Arial Narrow", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--cesped);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 56px, transparent 56px 112px);
+  color: var(--tiza);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.app {
+  max-width: 440px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-inline: 16px;
+  padding-block: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+h1, h2 { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; margin: 0; line-height: .95; text-wrap: balance; }
+h1 { font-size: clamp(44px, 14vw, 64px); letter-spacing: .01em; }
+h1 span { color: var(--amarilla); }
+h2 { font-size: 34px; }
+.eyebrow { font-family: var(--f-util); text-transform: uppercase; letter-spacing: .14em; font-size: 13px; color: var(--tiza-suave); margin: 0; }
+p { margin: 0; }
+
+/* Portada con la línea de medio campo */
+.cabecera { position: relative; padding-block: 8px 4px; display: grid; gap: 10px; }
+.cabecera::after {
+  content: ""; position: absolute; right: -40px; top: -10px; width: 150px; height: 150px;
+  border: 2px solid var(--linea); border-radius: 50%; pointer-events: none;
+}
+.cabecera p.lead { color: var(--tiza-suave); max-width: 32ch; }
+
+/* Bloques de configuración */
+.bloque { display: grid; gap: 10px; padding-block: 14px; border-top: 1px solid var(--linea); }
+.fila { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.fila label, .fila .lbl { font-weight: 600; }
+.fila small { display: block; color: var(--tiza-suave); font-weight: 400; font-size: 13px; }
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper button {
+  width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--linea);
+  background: transparent; color: var(--tiza); font-size: 22px; cursor: pointer; line-height: 1;
+}
+.stepper button:disabled { opacity: .3; cursor: default; }
+.stepper output { min-width: 40px; text-align: center; font-family: var(--f-display); font-weight: 900; font-size: 30px; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1.5px solid var(--linea); background: transparent; color: var(--tiza);
+  font-family: var(--f-util); font-weight: 600; font-size: 16px; letter-spacing: .04em;
+  padding: 8px 14px; border-radius: 999px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--amarilla); border-color: var(--amarilla); color: #1a1a12; }
+.chip .cnt { opacity: .65; font-weight: 500; margin-left: 4px; }
+.switch { position: relative; width: 52px; height: 30px; flex: none; }
+.switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--cesped-2); border: 1.5px solid var(--linea); transition: background .15s; pointer-events: none; }
+.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%; background: var(--tiza); transition: transform .15s; }
+.switch input:checked + span { background: var(--amarilla); border-color: var(--amarilla); }
+.switch input:checked + span::after { transform: translateX(22px); background: #1a1a12; }
+.switch input:focus-visible + span { outline: 2px solid var(--tiza); outline-offset: 2px; }
+.nombres { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.nombres input {
+  width: 100%; min-width: 0; background: var(--cesped-2); border: 1px solid var(--linea); color: var(--tiza);
+  border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 15px;
+}
+.nombres input::placeholder { color: var(--tiza-suave); opacity: .7; }
+.aviso { color: var(--amarilla); font-size: 14px; }
+
+/* Botones principales */
+.btn {
+  display: block; width: 100%; border: 0; border-radius: 12px; cursor: pointer;
+  font-family: var(--f-display); font-weight: 900; text-transform: uppercase; letter-spacing: .03em;
+  font-size: 24px; padding: 16px 18px; background: var(--amarilla); color: #1a1a12;
+}
+.btn.sec { background: transparent; color: var(--tiza); border: 1.5px solid var(--linea); font-size: 20px; padding: 13px 18px; }
+.btn:disabled { opacity: .4; cursor: default; }
+button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px solid var(--tiza); outline-offset: 2px; }
+.acciones { display: grid; gap: 10px; margin-top: auto; }
+
+/* Pase del celular */
+.pase { flex: 1; display: grid; align-content: center; gap: 18px; text-align: center; }
+.pase .nombre-turno { font-family: var(--f-display); font-weight: 900; font-size: clamp(48px, 16vw, 72px); text-transform: uppercase; line-height: .95; overflow-wrap: anywhere; }
+.progreso { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.progreso i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--linea); }
+.progreso i.ok { background: var(--tiza-suave); border-color: var(--tiza-suave); }
+.progreso i.ahora { background: var(--amarilla); border-color: var(--amarilla); }
+
+/* Carta tipo cromo */
+.carta {
+  position: relative; border-radius: 18px; padding: 22px 20px 20px; min-height: 340px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 16px; text-align: left;
+  background: linear-gradient(160deg, #f7f4e8, #e6e0c8); color: #16261c;
+  box-shadow: 0 18px 40px rgba(0,0,0,.45);
+  animation: aparecer .35s ease-out;
+}
+.carta .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; font-family: var(--f-util); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 14px; }
+.carta .pos { font-family: var(--f-display); font-weight: 900; font-size: 44px; line-height: .9; letter-spacing: 0; }
+.carta .nom { font-family: var(--f-display); font-weight: 900; font-size: clamp(40px, 12vw, 56px); line-height: .92; text-transform: uppercase; overflow-wrap: anywhere; text-wrap: balance; }
+.carta .pie { display: flex; justify-content: space-between; gap: 10px; border-top: 1.5px solid rgba(22,38,28,.25); padding-top: 10px; font-family: var(--f-util); font-size: 17px; font-weight: 600; }
+.carta.roja { background: linear-gradient(160deg, #ec5049, #b92c26); color: #fff6f4; }
+.carta.roja .pie { border-color: rgba(255,246,244,.35); }
+.carta.roja .grande { font-family: var(--f-display); font-weight: 900; font-size: clamp(46px, 14vw, 64px); line-height: .9; text-transform: uppercase; }
+.carta.roja .pista { font-size: 17px; }
+.oculto { border: 2px dashed var(--linea); border-radius: 18px; min-height: 340px; display: grid; place-items: center; padding: 20px; color: var(--tiza-suave); font-family: var(--f-util); font-size: 18px; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; background: transparent; width: 100%; }
+@keyframes aparecer { from { transform: rotateY(70deg) scale(.96); opacity: .3; } to { transform: none; opacity: 1; } }
+
+/* Discusión */
+.reloj { font-family: var(--f-display); font-weight: 900; font-size: clamp(88px, 30vw, 130px); line-height: 1; text-align: center; font-variant-numeric: tabular-nums; }
+.reloj.fin { color: var(--roja); }
+.barra { height: 6px; background: var(--cesped-2); border-radius: 3px; overflow: hidden; }
+.barra div { height: 100%; background: var(--amarilla); transition: width 1s linear; }
+.tarjeta-info { border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; }
+.tarjeta-info b { font-family: var(--f-display); font-size: 28px; text-transform: uppercase; font-weight: 900; }
+.reglas { color: var(--tiza-suave); font-size: 15px; display: grid; gap: 6px; padding-left: 18px; margin: 0; }
+
+/* Resultado */
+.lista-imp { display: flex; flex-wrap: wrap; gap: 8px; }
+.lista-imp span { background: var(--roja); color: #fff6f4; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: 24px; padding: 6px 14px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) { .carta { animation: none; } .barra div { transition: none; } }
+</style>
+
+<main class="app" id="app"></main>
+
+<script src="jugadores.js"></script>
+<script>
+const ERAS = { clasico: "Clásicos", "2000s": "90s y 2000s", actual: "Actuales" };
+const POS = { POR: "Arquero", DEF: "Defensa", MED: "Mediocampista", DEL: "Delantero" };
+
+let config = { n: 5, imp: 1, eras: ["clasico", "2000s", "actual"], pista: false, min: 3, nombres: [] };
+let partida = null;   // { secreto, impostores:Set, turno, visto, inicia, fin }
+let usados = [];      // jugadores ya salidos en esta sesión
+let timer = null;
+
+try { const g = JSON.parse(localStorage.getItem("impostor-config")); if (g && g.n) config = Object.assign(config, g); } catch (e) {}
+function guardar() { try { localStorage.setItem("impostor-config", JSON.stringify(config)); } catch (e) {} }
+
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const maxImp = n => Math.max(1, Math.floor((n - 1) / 2));
+const nombreDe = i => (config.nombres[i] || "").trim() || `Jugador ${i + 1}`;
+const pool = () => JUGADORES.filter(j => config.eras.includes(j.era));
+
+/* ───── Configuración ───── */
+function pantallaConfig() {
+  clearInterval(timer);
+  config.imp = Math.min(config.imp, maxImp(config.n));
+  const cuenta = e => JUGADORES.filter(j => j.era === e).length;
+  let inputs = "";
+  for (let i = 0; i < config.n; i++) {
+    inputs += `<input id="nom-${i}" data-i="${i}" maxlength="14" placeholder="Jugador ${i + 1}" value="${esc(config.nombres[i] || "")}" aria-label="Nombre del jugador ${i + 1}">`;
+  }
+  app.innerHTML = `
+    <header class="cabecera">
+      <p class="eyebrow">Piloto · ${JUGADORES.length} jugadores</p>
+      <h1>Impostor<br><span>Futbolero</span></h1>
+      <p class="lead">Todos ven al mismo futbolista menos el impostor. Hablen por turnos y descubran quién está chamullando.</p>
+    </header>
+
+    <section class="bloque">
+      <div class="fila"><span class="lbl">Jugadores</span>
+        <div class="stepper"><button id="n-menos" aria-label="Menos jugadores" ${config.n <= 3 ? "disabled" : ""}>−</button><output>${config.n}</output><button id="n-mas" aria-label="Más jugadores" ${config.n >= 15 ? "disabled" : ""}>+</button></div>
+      </div>
+      <div class="fila"><span class="lbl">Impostores</span>
+        <div class="stepper"><button id="i-menos" aria-label="Menos impostores" ${config.imp <= 1 ? "disabled" : ""}>−</button><output>${config.imp}</output><button id="i-mas" aria-label="Más impostores" ${config.imp >= maxImp(config.n) ? "disabled" : ""}>+</button></div>
+      </div>
+    </section>
+
+    <section class="bloque">
+      <span class="lbl" style="font-weight:600">Épocas</span>
+      <div class="chips">
+        ${Object.keys(ERAS).map(e => `<button class="chip" data-era="${e}" aria-pressed="${config.eras.includes(e)}">${ERAS[e]}<span class="cnt">${cuenta(e)}</span></button>`).join("")}
+      </div>
+      ${config.eras.length === 0 ? `<p class="aviso">Elige al menos una época.</p>` : ""}
+    </section>
+
+    <section class="bloque">
+      <div class="fila"><span class="lbl">Tiempo de discusión<small>Minutos por ronda</small></span>
+        <div class="chips">${[2, 3, 5].map(m => `<button class="chip" data-min="${m}" aria-pressed="${config.min === m}">${m}</button>`).join("")}</div>
+      </div>
+      <div class="fila"><label for="pista">Pista para el impostor<small>Ve la posición del jugador secreto</small></label>
+        <span class="switch"><input type="checkbox" id="pista" ${config.pista ? "checked" : ""}><span></span></span>
+      </div>
+    </section>
+
+    <section class="bloque">
+      <span class="lbl" style="font-weight:600">Nombres <small style="display:inline;color:var(--tiza-suave);font-weight:400">(opcional)</small></span>
+      <div class="nombres">${inputs}</div>
+    </section>
+
+    <div class="acciones"><button class="btn" id="empezar" ${config.eras.length === 0 ? "disabled" : ""}>Empezar partido</button></div>
+  `;
+  const re = () => { guardar(); pantallaConfig(); };
+  app.querySelector("#n-menos").onclick = () => { config.n--; re(); };
+  app.querySelector("#n-mas").onclick = () => { config.n++; re(); };
+  app.querySelector("#i-menos").onclick = () => { config.imp--; re(); };
+  app.querySelector("#i-mas").onclick = () => { config.imp++; re(); };
+  app.querySelectorAll("[data-era]").forEach(b => b.onclick = () => {
+    const e = b.dataset.era;
+    config.eras = config.eras.includes(e) ? config.eras.filter(x => x !== e) : [...config.eras, e];
+    re();
+  });
+  app.querySelectorAll("[data-min]").forEach(b => b.onclick = () => { config.min = +b.dataset.min; re(); });
+  app.querySelector("#pista").onchange = ev => { config.pista = ev.target.checked; guardar(); };
+  app.querySelectorAll(".nombres input").forEach(inp => inp.oninput = () => { config.nombres[+inp.dataset.i] = inp.value; guardar(); });
+  app.querySelector("#empezar").onclick = nuevaRonda;
+}
+
+/* ───── Lógica de ronda ───── */
+function nuevaRonda() {
+  let disponibles = pool().filter(j => !usados.includes(j.nombre));
+  if (disponibles.length === 0) { usados = []; disponibles = pool(); }
+  const secreto = disponibles[Math.floor(Math.random() * disponibles.length)];
+  usados.push(secreto.nombre);
+  const idx = [...Array(config.n).keys()].sort(() => Math.random() - .5);
+  partida = {
+    secreto,
+    impostores: idx.slice(0, config.imp),
+    turno: 0,
+    visto: false,
+    inicia: Math.floor(Math.random() * config.n),
+    fin: null,
+  };
+  pantallaPase();
+}
+
+function puntos() {
+  let h = "";
+  for (let i = 0; i < config.n; i++) h += `<i class="${i < partida.turno ? "ok" : i === partida.turno ? "ahora" : ""}"></i>`;
+  return `<div class="progreso" aria-label="Turno ${partida.turno + 1} de ${config.n}">${h}</div>`;
+}
+
+function pantallaPase() {
+  const t = partida.turno;
+  app.innerHTML = `
+    <div class="pase">
+      ${puntos()}
+      <p class="eyebrow">Pásale el celular a</p>
+      <div class="nombre-turno">${esc(nombreDe(t))}</div>
+      <p style="color:var(--tiza-suave)">Que nadie más mire la pantalla.</p>
+      <button class="oculto" id="ver" aria-label="Ver mi carta">Toca para ver tu carta</button>
+    </div>`;
+  app.querySelector("#ver").onclick = pantallaCarta;
+}
+
+function cartaHTML(j) {
+  return `<div class="carta">
+      <div class="top"><span class="pos">${j.pos}</span><span>${ERAS[j.era]}</span></div>
+      <div class="nom">${esc(j.nombre)}</div>
+      <div class="pie"><span>${esc(j.pais)}</span><span>${POS[j.pos]}</span></div>
+    </div>`;
+}
+
+function pantallaCarta() {
+  const t = partida.turno;
+  const esImp = partida.impostores.includes(t);
+  const s = partida.secreto;
+  const carta = esImp
+    ? `<div class="carta roja" role="img" aria-label="Eres el impostor">
+         <div class="top"><span>Tarjeta roja</span><span>${config.imp > 1 ? `${config.imp} impostores` : ""}</span></div>
+         <div class="grande">Eres el<br>impostor</div>
+         <div class="pie"><span class="pista">${config.pista ? `Pista: es ${POS[s.pos].toLowerCase()}` : "Disimula y escucha a los demás"}</span></div>
+       </div>`
+    : cartaHTML(s);
+  const ultimo = t === config.n - 1;
+  app.innerHTML = `
+    <div class="pase">
+      ${puntos()}
+      <p class="eyebrow">${esc(nombreDe(t))}, esta es tu carta</p>
+      ${carta}
+      <button class="btn" id="listo">${ultimo ? "Listo, a discutir" : "Ocultar y pasar"}</button>
+    </div>`;
+  app.querySelector("#listo").onclick = () => {
+    if (ultimo) { partida.fin = Date.now() + config.min * 60000; pantallaDiscusion(); }
+    else { partida.turno++; pantallaPase(); }
+  };
+}
+
+/* ───── Discusión ───── */
+function fmt(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+
+function pantallaDiscusion() {
+  clearInterval(timer);
+  const total = config.min * 60000;
+  app.innerHTML = `
+    <header class="cabecera"><p class="eyebrow">Ronda en juego</p><h2>A discutir</h2></header>
+    <div class="reloj" id="reloj">${fmt(partida.fin - Date.now())}</div>
+    <div class="barra"><div id="barra" style="width:100%"></div></div>
+    <div class="tarjeta-info"><span class="eyebrow">Empieza hablando</span><b>${esc(nombreDe(partida.inicia))}</b></div>
+    <ul class="reglas">
+      <li>Cada uno dice una palabra o dato sobre el jugador, sin decir el nombre.</li>
+      <li>El impostor tiene que disimular y adivinar quién es.</li>
+      <li>Al final del tiempo, voten a quién echan.</li>
+    </ul>
+    <div class="acciones">
+      <button class="btn" id="revelar">Revelar impostor</button>
+      <button class="btn sec" id="mas">+1 minuto</button>
+    </div>`;
+  const tick = () => {
+    const r = partida.fin - Date.now();
+    const el = document.getElementById("reloj");
+    if (!el) return clearInterval(timer);
+    el.textContent = r > 0 ? fmt(r) : "¡Voten!";
+    el.classList.toggle("fin", r <= 0);
+    document.getElementById("barra").style.width = Math.max(0, Math.min(100, r / total * 100)) + "%";
+    if (r <= 0) clearInterval(timer);
+  };
+  tick();
+  timer = setInterval(tick, 1000);
+  app.querySelector("#revelar").onclick = pantallaResultado;
+  app.querySelector("#mas").onclick = () => { partida.fin = Math.max(partida.fin, Date.now()) + 60000; pantallaDiscusion(); };
+}
+
+/* ───── Resultado ───── */
+function pantallaResultado() {
+  clearInterval(timer);
+  const imps = partida.impostores.slice().sort((a, b) => a - b).map(i => `<span>${esc(nombreDe(i))}</span>`).join("");
+  app.innerHTML = `
+    <header class="cabecera"><p class="eyebrow">Fin de la ronda</p><h2>${partida.impostores.length > 1 ? "Los impostores eran" : "El impostor era"}</h2></header>
+    <div class="lista-imp">${imps}</div>
+    <p class="eyebrow">El jugador secreto</p>
+    ${cartaHTML(partida.secreto)}
+    <div class="acciones">
+      <button class="btn" id="otra">Otra ronda</button>
+      <button class="btn sec" id="ajustes">Cambiar ajustes</button>
+    </div>`;
+  app.querySelector("#otra").onclick = nuevaRonda;
+  app.querySelector("#ajustes").onclick = pantallaConfig;
+}
+
+pantallaConfig();
+</script>
